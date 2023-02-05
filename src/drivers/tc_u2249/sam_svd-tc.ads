@@ -2181,11 +2181,11 @@ package SAM_SVD.TC is
      with Import, Address => TC3_Base;
 
    --  Basic Timer Counter 4
-   TC4_Periph : aliased TC_Peripheral
-     with Import, Address => TC4_Base;
+   --  TC4_Periph : aliased TC_Peripheral
+   --    with Import, Address => TC4_Base;
 
    --  Basic Timer Counter 5
-   TC5_Periph : aliased TC_Peripheral
-     with Import, Address => TC5_Base;
+   --  TC5_Periph : aliased TC_Peripheral
+   --    with Import, Address => TC5_Base;
 
 end SAM_SVD.TC;

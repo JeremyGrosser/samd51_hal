@@ -728,6 +728,6 @@ package SAM_SVD.ADC is
 
    --  Analog Digital Converter
    ADC_Periph : aliased ADC_Peripheral
-     with Import, Address => ADC0_Base;
+     with Import, Address => ADC_Base;
 
 end SAM_SVD.ADC;

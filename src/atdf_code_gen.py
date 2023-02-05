@@ -459,6 +459,26 @@ def gen_project_file(info):
     write_file(os.path.join('..', info['name'] + '.gpr'), gpr)
 
 
+def gen_base_svd(dom, device_dir):
+    svd = '''with System;
+package SAM_SVD
+   with Preelaborate
+is
+'''
+    for register_group in dom.getElementsByTagName('register-group'):
+        if register_group.parentNode.tagName != 'instance':
+            continue
+        name = register_group.getAttribute('name')
+        offset = register_group.getAttribute('offset')
+        offset = offset[2:] # strip leading '0x'
+        if name and offset:
+            svd += '   %s_Base : constant System.Address := System\'To_Address (16#%s#);\n' % (name, offset)
+    svd += '''
+end SAM_SVD;
+'''
+    write_file(os.path.join(device_dir, 'sam_svd.ads'), svd)
+
+
 def gen_from_atdf(atdf):
     dom = parse(atdf)
 
@@ -477,6 +497,7 @@ def gen_from_atdf(atdf):
         gen_MCLK(dom, device_dir)
     driver_dependencies = gen_device(dom, device_dir, series)
     gen_functions(dom, device_dir)
+    gen_base_svd(dom, device_dir)
     interrupts = gen_interrupts(svd_file, device_dir)
     info = gen_device_info(dom, device_dir, driver_dependencies, interrupts)
     gen_project_file(info)
