@@ -1,0 +1,60 @@
+with "config/samd51_hal_config.gpr";
+
+project ATSAMD21G16L is
+
+   for Source_Dirs use ("src",
+                        "src/drivers/**",
+                        "src/devices/SAMD21/ATSAMD21G16L");
+   for Excluded_Source_Dirs use ("src/drivers/samd51_clock_setup");
+   for Object_Dir use "obj/ATSAMD21G16L";
+
+   for Target use "arm-eabi";
+   for Runtime ("Ada") use "light-cortex-m0p";
+
+   package Device_Configuration is
+      for CPU_Name use "ARM Cortex-M0+";
+      for Number_Of_Interrupts use "29";
+
+      for Memories use ("FLASH", "RWW", "HMCRAMC0");
+      for Boot_Memory use "FLASH";
+
+      for Mem_Kind ("FLASH") use "rom";
+      for Address ("FLASH") use "0x00000000";
+      for Size ("FLASH") use "0x10000";
+      for Mem_Kind ("RWW") use "rom";
+      for Address ("RWW") use "0x00400000";
+      for Size ("RWW") use "0x800";
+      for Mem_Kind ("HMCRAMC0") use "ram";
+      for Address ("HMCRAMC0") use "0x20000000";
+      for Size ("HMCRAMC0") use "0x2000";
+
+      for Interrupt ("0") use "pm_interrupt";
+      for Interrupt ("1") use "sysctrl_interrupt";
+      for Interrupt ("2") use "wdt_interrupt";
+      for Interrupt ("3") use "rtc_interrupt";
+      for Interrupt ("4") use "eic_interrupt";
+      for Interrupt ("5") use "nvmctrl_interrupt";
+      for Interrupt ("6") use "dmac_interrupt";
+      for Interrupt ("8") use "evsys_interrupt";
+      for Interrupt ("9") use "sercom0_interrupt";
+      for Interrupt ("10") use "sercom1_interrupt";
+      for Interrupt ("11") use "sercom2_interrupt";
+      for Interrupt ("12") use "sercom3_interrupt";
+      for Interrupt ("13") use "sercom4_interrupt";
+      for Interrupt ("14") use "sercom5_interrupt";
+      for Interrupt ("15") use "tcc0_interrupt";
+      for Interrupt ("16") use "tcc1_interrupt";
+      for Interrupt ("17") use "tcc2_interrupt";
+      for Interrupt ("18") use "tc3_interrupt";
+      for Interrupt ("19") use "tc4_interrupt";
+      for Interrupt ("20") use "tc5_interrupt";
+      for Interrupt ("21") use "tc6_interrupt";
+      for Interrupt ("22") use "tc7_interrupt";
+      for Interrupt ("23") use "adc_interrupt";
+      for Interrupt ("24") use "ac_interrupt";
+      for Interrupt ("25") use "dac_interrupt";
+      for Interrupt ("28") use "ac1_interrupt";
+
+   end Device_Configuration;
+
+end ATSAMD21G16L;

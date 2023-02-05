@@ -1,0 +1,59 @@
+{
+  "name": "ATSAMD21G15A",
+  "series": "SAMD21",
+  "architecture": "CORTEX-M0PLUS",
+  "has_FPU": false,
+  "has_MPU": false,
+  "drivers": [
+    "adc_u2500",
+    "dac_u2502",
+    "dmac_u2503",
+    "eic_u2254",
+    "gclk_u2122",
+    "port_u2210",
+    "sercom_u2201",
+    "tc_u2249",
+    "usb_u2222"
+  ],
+  "memories": {
+    "FLASH": {
+      "kind": "rom",
+      "start": "0x00000000",
+      "size": "0x8000"
+    },
+    "HMCRAMC0": {
+      "kind": "ram",
+      "start": "0x20000000",
+      "size": "0x1000"
+    }
+  },
+  "interrupts": {
+    "24": "ac_interrupt",
+    "23": "adc_interrupt",
+    "25": "dac_interrupt",
+    "6": "dmac_interrupt",
+    "4": "eic_interrupt",
+    "8": "evsys_interrupt",
+    "27": "i2s_interrupt",
+    "5": "nvmctrl_interrupt",
+    "0": "pm_interrupt",
+    "3": "rtc_interrupt",
+    "9": "sercom0_interrupt",
+    "10": "sercom1_interrupt",
+    "11": "sercom2_interrupt",
+    "12": "sercom3_interrupt",
+    "13": "sercom4_interrupt",
+    "14": "sercom5_interrupt",
+    "1": "sysctrl_interrupt",
+    "18": "tc3_interrupt",
+    "19": "tc4_interrupt",
+    "20": "tc5_interrupt",
+    "15": "tcc0_interrupt",
+    "16": "tcc1_interrupt",
+    "17": "tcc2_interrupt",
+    "7": "usb_interrupt",
+    "2": "wdt_interrupt"
+  },
+  "number_of_interrupts": 28,
+  "boot_mem": "FLASH"
+}

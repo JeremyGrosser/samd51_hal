@@ -433,10 +433,10 @@ def gen_project_file(info):
     series = info['series']
     if info['architecture'] == 'CORTEX-M0PLUS':
         rts = 'light-cortex-m0p'
-        cpu_name = 'Cortex-M0+'
+        cpu_name = 'ARM Cortex-M0+'
     elif info['architecture'] == 'CORTEX-M4':
         rts = 'light-cortex-m4'
-        cpu_name = 'Cortex-M4'
+        cpu_name = 'ARM Cortex-M4'
 
     if info['has_FPU']:
         rts += 'f'

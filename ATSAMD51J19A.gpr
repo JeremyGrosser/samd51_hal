@@ -12,7 +12,7 @@ project ATSAMD51J19A is
    for Runtime ("Ada") use "light-cortex-m4f";
 
    package Device_Configuration is
-      for CPU_Name use "Cortex-M4F";
+      for CPU_Name use "ARM Cortex-M4F";
       for Number_Of_Interrupts use "136";
 
       for Memories use ("FLASH", "HSRAM", "BKUPRAM");
