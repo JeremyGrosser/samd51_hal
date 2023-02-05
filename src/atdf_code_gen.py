@@ -374,8 +374,8 @@ def gen_device_info(dom, dir, driver_dependencies, interrupts):
     device = dom.getElementsByTagName('device')[0]
     name = device.getAttribute('name')
     architecture = device.getAttribute('architecture')
-    FPU = int(get_param(dom, '__FPU_PRESENT')) != 0
-    MPU = int(get_param(dom, '__MPU_PRESENT')) != 0
+    FPU = int(get_param(dom, '__FPU_PRESENT') or 0) != 0
+    MPU = int(get_param(dom, '__MPU_PRESENT') or 0) != 0
 
     info = {}
     info['name'] = name
