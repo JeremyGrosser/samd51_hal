@@ -203,6 +203,10 @@ def gen_device(dom, dir, series):
         device = register_group.getAttribute('name-in-module')
         offset = register_group.getAttribute('offset')
         name   = register_group.getAttribute('name')
+        module_id = register_group.parentNode.parentNode.getAttribute('id')
+
+        if device and module_id:
+            driver_dependencies.append('%s_%s' % (device.lower(), module_id.lower()))
 
         # Convert to Ada literal
         offset = "16#" + offset[2:] + "#"
@@ -215,8 +219,6 @@ def gen_device(dom, dir, series):
             dependencies.append("SAM.SERCOM.SPI")
             dependencies.append("SAM.SERCOM.I2C")
             dependencies.append("SAM.SERCOM.USART")
-
-            driver_dependencies.append("sercom_u2201")
 
             spec += "   -- %s --\n\n" % name
             spec += "   %s_Internal : aliased SAM.SERCOM.SERCOM_Internal\n" % name
@@ -235,38 +237,8 @@ def gen_device(dom, dir, series):
 
             dependencies.append("System")
             dependencies.append("SAM.Port")
-            driver_dependencies.append("port_u2210")
-
-        elif device == "GCLK":
-            if series == 'SAMD21':
-                driver_dependencies.append('gclk_u2102')
-            elif series == 'SAMD51':
-                driver_dependencies.append("gclk_u2122")
-
-        elif device == "DMAC":
-            driver_dependencies.append("dmac_u2503")
-
-        elif device == "DAC":
-            driver_dependencies.append("dac_u2502")
-
-        elif device == "OSCCTRL":
-            driver_dependencies.append("oscctrl_u2401")
-
-        elif device == "QSPI":
-            driver_dependencies.append("qspi_u2008")
-
-        elif device == "EIC":
-            driver_dependencies.append("eic_u2254")
-
-        elif device == "USB":
-            driver_dependencies.append("usb_u2222")
-
-        elif device == "CMCC":
-            driver_dependencies.append("cmcc_u2015")
 
         elif device == "ADC":
-            driver_dependencies.append("adc_u2500")
-
             number = name[3:]
 
             dependencies.append("System")
@@ -279,8 +251,6 @@ def gen_device(dom, dir, series):
             spec += "\n"
 
         elif device == "TC":
-            driver_dependencies.append("tc_u2249")
-
             number = name[2:]
             if int(number) % 2 == 0:
                 master = "True"
@@ -453,7 +423,11 @@ def gen_project_file(info):
     gpr += '\n'
     gpr += '   for Source_Dirs use ("src",\n'
     for driver in info['drivers']:
-        gpr += '                        "src/drivers/%s",\n' % driver
+        driver_path = 'drivers/%s' % driver
+        if os.path.exists(driver_path):
+            gpr += '                        "src/%s",\n' % driver_path
+        else:
+            gpr += '                    --  "src/%s",\n' % driver_path
     gpr += '                        "src/drivers/%s_clock_setup",\n' % series.lower()
     gpr += '                        "src/devices/%s/%s");\n' % (series, name)
     gpr += '\n'
