@@ -454,6 +454,14 @@ def gen_project_file(info):
     gpr += '\n'
     gpr += '   end Device_Configuration;\n'
     gpr += '\n'
+    gpr += '   package Compiler is\n'
+    gpr += '      for Default_Switches ("Ada") use Samd51_Hal_Config.Ada_Compiler_Switches;\n'
+    gpr += '   end Compiler;\n'
+    gpr += '\n'
+    gpr += '   package Binder is\n'
+    gpr += '      for Switches ("Ada") use ("-Es"); --  Symbolic traceback\n'
+    gpr += '   end Binder;\n'
+    gpr += '\n'
     gpr += 'end %s;\n' % name
 
     write_file(os.path.join('..', info['name'] + '.gpr'), gpr)

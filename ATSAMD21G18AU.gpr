@@ -87,4 +87,12 @@ project ATSAMD21G18AU is
 
    end Device_Configuration;
 
+   package Compiler is
+      for Default_Switches ("Ada") use Samd51_Hal_Config.Ada_Compiler_Switches;
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
 end ATSAMD21G18AU;
