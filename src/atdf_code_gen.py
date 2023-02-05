@@ -189,7 +189,7 @@ def gen_MCLK(dom, dir):
     write_file(os.path.join(dir, "sam-main_clock.adb"), body)
 
 
-def gen_device(dom, dir):
+def gen_device(dom, dir, series):
 
     dependencies = []
     driver_dependencies = [];
@@ -238,7 +238,10 @@ def gen_device(dom, dir):
             driver_dependencies.append("port_u2210")
 
         elif device == "GCLK":
-            driver_dependencies.append("gclk_u2122")
+            if series == 'SAMD21':
+                driver_dependencies.append('gclk_u2102')
+            elif series == 'SAMD51':
+                driver_dependencies.append("gclk_u2122")
 
         elif device == "DMAC":
             driver_dependencies.append("dmac_u2503")
@@ -449,10 +452,10 @@ def gen_project_file(info):
     gpr += 'project %s is\n' % name
     gpr += '\n'
     gpr += '   for Source_Dirs use ("src",\n'
-    gpr += '                        "src/drivers/**",\n'
+    for driver in info['drivers']:
+        gpr += '                        "src/drivers/%s",\n' % driver
+    gpr += '                        "src/drivers/%s_clock_setup",\n' % series.lower()
     gpr += '                        "src/devices/%s/%s");\n' % (series, name)
-    if series != "SAMD51":
-        gpr += '   for Excluded_Source_Dirs use ("src/drivers/samd51_clock_setup");'
     gpr += '\n'
     gpr += '   for Object_Dir use "obj/%s";\n' % name
     gpr += '\n'
@@ -498,7 +501,7 @@ def gen_from_atdf(atdf):
     gen_GCLK_ID(dom, device_dir)
     if series == "SAMD51":
         gen_MCLK(dom, device_dir)
-    driver_dependencies = gen_device(dom, device_dir)
+    driver_dependencies = gen_device(dom, device_dir, series)
     gen_functions(dom, device_dir)
     interrupts = gen_interrupts(svd_file, device_dir)
     info = gen_device_info(dom, device_dir, driver_dependencies, interrupts)

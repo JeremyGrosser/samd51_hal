@@ -3,7 +3,19 @@ with "config/samd51_hal_config.gpr";
 project ATSAMD51J19A is
 
    for Source_Dirs use ("src",
-                        "src/drivers/**",
+                        "src/drivers/adc_u2500",
+                        "src/drivers/cmcc_u2015",
+                        "src/drivers/dac_u2502",
+                        "src/drivers/dmac_u2503",
+                        "src/drivers/eic_u2254",
+                        "src/drivers/gclk_u2122",
+                        "src/drivers/oscctrl_u2401",
+                        "src/drivers/port_u2210",
+                        "src/drivers/qspi_u2008",
+                        "src/drivers/sercom_u2201",
+                        "src/drivers/tc_u2249",
+                        "src/drivers/usb_u2222",
+                        "src/drivers/samd51_clock_setup",
                         "src/devices/SAMD51/ATSAMD51J19A");
 
    for Object_Dir use "obj/ATSAMD51J19A";
