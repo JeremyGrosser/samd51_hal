@@ -51,8 +51,7 @@ package SAM.USB is
    overriding
    function Request_Buffer (This          : in out UDC;
                             Ep            :        EP_Addr;
-                            Len           :        UInt11;
-                            Min_Alignment :        UInt8 := 1)
+                            Len           :        Packet_Size)
                             return System.Address;
 
    overriding
@@ -60,6 +59,11 @@ package SAM.USB is
                          EP   :        EP_Id)
                          return Boolean
    is (Natural (EP) in This.Periph.USB_DEVICE.USB_DEVICE_ENDPOINT'Range);
+
+   overriding
+   procedure EP_Send_Packet (This : in out UDC;
+                             Ep   : EP_Id;
+                             Len  : Packet_Size);
 
    overriding
    procedure Start (This : in out UDC);
@@ -71,23 +75,15 @@ package SAM.USB is
    function Poll (This : in out UDC) return UDC_Event;
 
    overriding
-   procedure EP_Write_Packet (This : in out UDC;
-                              Ep   : EP_Id;
-                              Addr : System.Address;
-                              Len  : UInt32);
+   procedure EP_Setup (This : in out UDC;
+                       EP   : EP_Addr;
+                       Typ  : EP_Type);
 
    overriding
-   procedure EP_Setup (This     : in out UDC;
-                       EP       : EP_Addr;
-                       Typ      : EP_Type;
-                       Max_Size : UInt16);
-
-   overriding
-   procedure EP_Ready_For_Data (This  : in out UDC;
-                                EP    : EP_Id;
-                                Addr  : System.Address;
-                                Size  : UInt32;
-                                Ready : Boolean := True);
+   procedure EP_Ready_For_Data (This    : in out UDC;
+                                EP      : EP_Id;
+                                Max_Len : Packet_Size;
+                                Ready   : Boolean := True);
 
    overriding
    procedure EP_Stall (This : in out UDC;
@@ -207,6 +203,7 @@ private
       EP0_Buffer : EP_Buffer (1 .. Max_Packet_Size);
 
       Alloc : Standard.USB.Utils.Basic_RAM_Allocator (EP_Buffers_Size);
+      Packet_Addr : System.Address;
 
       EP_Descs : EP_Descriptor_Array;
    end record;

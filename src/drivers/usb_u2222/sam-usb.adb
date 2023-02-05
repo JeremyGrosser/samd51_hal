@@ -107,15 +107,15 @@ package body SAM.USB is
    overriding
    function Request_Buffer (This          : in out UDC;
                             Ep            :        EP_Addr;
-                            Len           :        UInt11;
-                            Min_Alignment :        UInt8 := 1)
+                            Len           :        Packet_Size)
                             return System.Address
    is
    begin
-      return Standard.USB.Utils.Allocate
+      This.Packet_Addr := Standard.USB.Utils.Allocate
         (This.Alloc,
-         Alignment => UInt8'Max (Min_Alignment, EP_Buffer_Min_Alignment),
+         Alignment => EP_Buffer_Min_Alignment,
          Len       => Len);
+      return This.Packet_Addr;
    end Request_Buffer;
 
    -----------
@@ -224,7 +224,7 @@ package body SAM.USB is
 
                   return (Kind => Transfer_Complete,
                           EP   => (UInt4 (Ep), EP_In),
-                          BCNT => UInt11 (EP_In_Size));
+                          BCNT => Packet_Size (EP_In_Size));
                end if;
 
                --  Check transfer OUT complete
@@ -238,7 +238,7 @@ package body SAM.USB is
 
                   return (Kind => Transfer_Complete,
                           EP   => (UInt4 (Ep), EP_Out),
-                          BCNT => UInt11 (EP_Out_Size));
+                          BCNT => Packet_Size (EP_Out_Size));
                end if;
 
             end if;
@@ -250,14 +250,13 @@ package body SAM.USB is
    end Poll;
 
    ---------------------
-   -- EP_Write_Packet --
+   -- EP_Send_Packet --
    ---------------------
 
    overriding
-   procedure EP_Write_Packet (This : in out UDC;
-                              Ep   :        EP_Id;
-                              Addr :        System.Address;
-                              Len  :        UInt32)
+   procedure EP_Send_Packet (This : in out UDC;
+                             Ep   :        EP_Id;
+                             Len  :        Packet_Size)
    is
       P : USB_Peripheral renames This.Periph.all;
       Num : constant Natural := Natural (Ep);
@@ -267,11 +266,7 @@ package body SAM.USB is
          raise Program_Error with "Invalid endpoint number";
       end if;
 
-      if Len > UInt32 (UInt14'Last) then
-         raise Program_Error with "Packet too big for endpoint";
-      end if;
-
-      This.EP_Descs (Num).Bank1_In.ADDR := Addr;
+      This.EP_Descs (Num).Bank1_In.ADDR := This.Packet_Addr;
       This.EP_Descs (Num).Bank1_In.PCKSIZE.BYTE_COUNT := UInt14 (Len);
       This.EP_Descs (Num).Bank1_In.PCKSIZE.MULTI_PACKET_SIZE := 0;
 
@@ -280,7 +275,7 @@ package body SAM.USB is
         (TRFAIL1 => True, others => <>);
 
       P.USB_DEVICE.USB_DEVICE_ENDPOINT (Num).EPSTATUSSET.BK1RDY := True;
-   end EP_Write_Packet;
+   end EP_Send_Packet;
 
    --------------
    -- EP_Setup --
@@ -289,8 +284,7 @@ package body SAM.USB is
    overriding
    procedure EP_Setup (This     : in out UDC;
                        EP       :        EP_Addr;
-                       Typ      :        EP_Type;
-                       Max_Size :        UInt16)
+                       Typ      :        EP_Type)
    is
       P : USB_Peripheral renames This.Periph.all;
       Num : constant Natural := Natural (EP.Num);
@@ -354,11 +348,10 @@ package body SAM.USB is
    -----------------------
 
    overriding
-   procedure EP_Ready_For_Data (This  : in out UDC;
-                                EP    :        EP_Id;
-                                Addr  :        System.Address;
-                                Size  :        UInt32;
-                                Ready :        Boolean := True)
+   procedure EP_Ready_For_Data (This    : in out UDC;
+                                EP      :        EP_Id;
+                                Max_Len :        Packet_Size;
+                                Ready   :        Boolean := True)
    is
       P : USB_Peripheral renames This.Periph.all;
       Num : constant Natural := Natural (EP);
@@ -374,14 +367,13 @@ package body SAM.USB is
             --  TODO: Why? EP0 always on internal buffer?
             This.EP_Descs (0).Bank0_Out.ADDR := This.EP0_Buffer'Address;
          else
-            This.EP_Descs (Num).Bank0_Out.ADDR := Addr;
+            This.EP_Descs (Num).Bank0_Out.ADDR := This.Packet_Addr;
          end if;
 
          --  Enable RXSTP interrupt
          P.USB_DEVICE.USB_DEVICE_ENDPOINT (Num).EPINTENSET.RXSTP := True;
 
-         This.EP_Descs (Num).Bank0_Out.PCKSIZE.MULTI_PACKET_SIZE :=
-           UInt14 (Size);
+         This.EP_Descs (Num).Bank0_Out.PCKSIZE.MULTI_PACKET_SIZE := UInt14 (Max_Len);
 
          This.EP_Descs (Num).Bank0_Out.PCKSIZE.BYTE_COUNT := 0;
 

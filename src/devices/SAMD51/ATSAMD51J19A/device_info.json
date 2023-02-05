@@ -1,5 +1,6 @@
 {
   "name": "ATSAMD51J19A",
+  "series": "SAMD51",
   "architecture": "CORTEX-M4",
   "has_FPU": true,
   "has_MPU": true,

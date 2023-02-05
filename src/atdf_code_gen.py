@@ -373,12 +373,14 @@ def gen_interrupts(svd_file, dir):
 def gen_device_info(dom, dir, driver_dependencies, interrupts):
     device = dom.getElementsByTagName('device')[0]
     name = device.getAttribute('name')
+    series = device.getAttribute('series')
     architecture = device.getAttribute('architecture')
     FPU = int(get_param(dom, '__FPU_PRESENT') or 0) != 0
     MPU = int(get_param(dom, '__MPU_PRESENT') or 0) != 0
 
     info = {}
     info['name'] = name
+    info['series'] = series
     info['architecture'] = architecture
     info['has_FPU'] = FPU
     info['has_MPU'] = MPU
@@ -428,29 +430,37 @@ def gen_device_info(dom, dir, driver_dependencies, interrupts):
 
 def gen_project_file(info):
     name = info['name']
+    series = info['series']
+    if info['architecture'] == 'CORTEX-M0PLUS':
+        rts = 'light-cortex-m0p'
+        cpu_name = 'Cortex-M0+'
+    elif info['architecture'] == 'CORTEX-M4':
+        rts = 'light-cortex-m4'
+        cpu_name = 'Cortex-M4'
+
+    if info['has_FPU']:
+        rts += 'f'
+        cpu_name += 'F'
 
     gpr = ''
 
-    gpr += 'with "hal.gpr";\n'
-    gpr += 'with "cortex_m4f.gpr";\n'
-    gpr += 'with "usb_embedded.gpr";\n'
-    gpr += 'with "samd51_hal_common.gpr";\n'
+    gpr += 'with "config/samd51_hal_config.gpr";\n'
     gpr += '\n'
     gpr += 'project %s is\n' % name
     gpr += '\n'
     gpr += '   for Source_Dirs use ("src",\n'
     gpr += '                        "src/drivers/**",\n'
-    gpr += '                        "src/devices/SAMD51/%s");\n' % name
+    gpr += '                        "src/devices/%s/%s");\n' % (series, name)
+    if series != "SAMD51":
+        gpr += '   for Excluded_Source_Dirs use ("src/drivers/samd51_clock_setup");'
     gpr += '\n'
     gpr += '   for Object_Dir use "obj/%s";\n' % name
     gpr += '\n'
     gpr += '   for Target use "arm-eabi";\n'
-    gpr += '   for Runtime ("Ada") use "zfp-cortex-m4f";\n'
-    gpr += '\n'
-    gpr += '   package Compiler renames Samd51_Hal_Common.Compiler;\n'
+    gpr += '   for Runtime ("Ada") use "%s";\n' % rts
     gpr += '\n'
     gpr += '   package Device_Configuration is\n'
-    gpr += '      for CPU_Name use "ARM Cortex-M4F";\n'
+    gpr += '      for CPU_Name use "%s";\n' % cpu_name
     gpr += '      for Number_Of_Interrupts use "%d";\n' % info['number_of_interrupts']
     gpr += '\n'
     gpr += '      for Memories use ("%s");\n' % ('", "'.join(info['memories']))
@@ -486,7 +496,8 @@ def gen_from_atdf(atdf):
     mkdirs(device_dir)
 
     gen_GCLK_ID(dom, device_dir)
-    gen_MCLK(dom, device_dir)
+    if series == "SAMD51":
+        gen_MCLK(dom, device_dir)
     driver_dependencies = gen_device(dom, device_dir)
     gen_functions(dom, device_dir)
     interrupts = gen_interrupts(svd_file, device_dir)
